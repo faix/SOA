@@ -37,6 +37,7 @@ int __attribute__ ((__section__(".text.main")))
   acum = 0;
   acum = outer(count);    
   asmSum = add2(count, acum);
+  write(1, "SOA, Hello from PEP", 19);
   while(1) { }
   return 0;
 }

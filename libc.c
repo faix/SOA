@@ -43,3 +43,10 @@ int strlen(char *a)
   return i;
 }
 
+int write (int fd, char * buffer, int size);
+void perror(){
+
+char buffer[256];
+  itoa(errno, buffer);
+  write(1, buffer, strlen(buffer));
+}

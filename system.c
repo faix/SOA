@@ -57,6 +57,17 @@ inline void set_seg_regs(Word data_sel, Word stack_sel, DWord esp)
 /*
  *   Main entry point to ZEOS Operating System
  */
+
+int zeos_ticks;
+
+int get_zeos_ticks(void){
+  return zeos_ticks;
+}
+
+void increase_zeos_ticks(void){
+  zeos_ticks++;
+}
+
 int __attribute__((__section__(".text.main")))
   main(void)
 {
@@ -102,6 +113,7 @@ int __attribute__((__section__(".text.main")))
   printk("Entering user mode...");
 
   enable_int();
+  zeos_ticks = 0; //inicializamos la variable despues de la inicializacion de interrupciones
   /*
    * We return from a 'theorical' call to a 'call gate' to reduce our privileges
    * and going to execute 'magically' at 'usr_main'...
