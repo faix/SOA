@@ -43,6 +43,10 @@ int strlen(char *a)
   return i;
 }
 
+int getpid();
+
+int fork();
+
 int write (int fd, char * buffer, int size);
 void perror(){
 

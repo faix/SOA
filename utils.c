@@ -53,6 +53,13 @@ int copy_to_user(void *start, void *dest, int size)
   return 0;
 }
 
+void update_st(unsigned long *new, unsigned long *elapsed){
+
+	unsigned long ticks = get_ticks();
+	*new += ticks - *elapsed;
+	*elapsed=ticks;
+}
+
 /* access_ok: Checks if a user space pointer is valid
  * @type:  Type of access: %VERIFY_READ or %VERIFY_WRITE. Note that
  *         %VERIFY_WRITE is a superset of %VERIFY_READ: if it is safe

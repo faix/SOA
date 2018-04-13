@@ -5,6 +5,9 @@
 #include <sched.h>
 #include <mm.h>
 #include <io.h>
+#include <utils.h>
+
+#define DEFAULT_QUANTUM 10
 
 
 struct list_head readyqueue;
@@ -17,11 +20,13 @@ struct task_struct *task1;
 
 void task_switch(union task_union *new);
 
-void inner_task_switch(union task_union *new);
 /**
  * Container for the Task array and 2 additional pages (the first and the last one)
  * to protect against out of bound accesses.
  */
+
+int quantum_left = 0;
+
 union task_union protected_tasks[NR_TASKS+2]
   __attribute__((__section__(".data.task")));
 
@@ -78,13 +83,13 @@ void init_idle (void)
 	union task_union *uidle = (union task_union *)idle_task;
 
 	idle_task->PID=0;
-	//idle_task->quantum = DEFAULT_QUANTUM;
+	idle_task->quantum = DEFAULT_QUANTUM;
 	allocate_DIR(idle_task);
 
-	uidle->stack[KERNEL_STACK_SIZE-1] = &cpu_idle;
+	uidle->stack[KERNEL_STACK_SIZE-1] =(unsigned long) &cpu_idle;
 	uidle->stack[KERNEL_STACK_SIZE-2] = 0;
 
-	idle_task->espReg = &(idle_union->stack[KERNEL_STACK_SIZE-2]);
+	idle_task->espReg = (unsigned long)&(uidle->stack[KERNEL_STACK_SIZE-2]);
 
 }
 
@@ -96,11 +101,13 @@ void init_task1(void)
 	union task_union *utask1 = (union task_union *)task1;
 
 	task1->PID=1;
-	//task1->quantum= DEFAULT_QUANTUM;
+	task1->quantum= DEFAULT_QUANTUM;
+	task1-> state = ST_RUN;
+	quantum_left = task1-> quantum;
 	allocate_DIR(task1);
 	set_user_pages(task1);
 
-	tss.esp0 = &(task1_union->stack[KERNEL_STACK_SIZE]);
+	tss.esp0 =(DWord) &(utask1->stack[KERNEL_STACK_SIZE]);
 	set_cr3(task1->dir_pages_baseAddr);
 
 }
@@ -127,7 +134,7 @@ void init_sched(){
 struct task_struct* current()
 {
   int ret_value;
-  
+
   __asm__ __volatile__(
   	"movl %%esp, %0"
 	: "=g" (ret_value)
@@ -135,3 +142,60 @@ struct task_struct* current()
   return (struct task_struct*)(ret_value&0xfffff000);
 }
 
+void inner_task_switch(union task_union *new){
+	tss.esp0 = (DWord)&(new->stack[KERNEL_STACK_SIZE]);
+	set_cr3(new->task.dir_pages_baseAddr);
+	aux_inner_task_switch(&(current()->espReg), new->task.espReg);
+}
+
+int get_quantum(struct task_struct *ts) {return ts-> quantum;}
+
+void set_quantum(struct task_struct *ts, int quantum) {ts->quantum = quantum;}
+
+void sched_next_rr(){
+	struct list_head *next;
+	struct task_struct *t_next;
+	next = list_first(&readyqueue);
+
+	if(next){
+		list_del(next);
+		t_next = list_head_to_task_struct(next);
+	}
+	else t_next = idle_task;
+	update_st(&(current()->st.system_ticks), &(current()->st.elapsed_total_ticks));
+	update_st(&(t_next->st.ready_ticks), &(t_next->st.elapsed_total_ticks));
+	t_next -> state = ST_RUN;
+	quantum_left =get_quantum(t_next);
+	task_switch((union task_union *) t_next);
+}
+
+void update_process_state_rr(struct task_struct *t, struct list_head *dst_queue){
+	if(t->state != ST_RUN) list_del(&(t->list));
+	if(dst_queue != NULL){
+		list_add_tail(&(t->list), dst_queue);
+		if(dst_queue != &readyqueue) t-> state = ST_BLOCKED;
+		else{
+			update_st(&(t->st.system_ticks), &(t->st.elapsed_total_ticks));
+			t-> state = ST_READY;
+		}
+	}
+	else t->state = ST_RUN;
+}
+
+void update_sched_data_rr(){
+	--quantum_left;
+}
+
+int needs_sched_rr(){
+	if(quantum_left == 0 && !list_empty(&readyqueue)) return 1;
+	if(quantum_left == 0) quantum_left = get_quantum(current());
+	return 0;
+}
+
+void schedule(){
+	update_sched_data_rr();
+	if(needs_sched_rr()){
+		update_process_state_rr(current(), &readyqueue);
+		sched_next_rr();
+	}
+}
