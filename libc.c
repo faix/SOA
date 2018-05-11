@@ -43,14 +43,11 @@ int strlen(char *a)
   return i;
 }
 
-int getpid();
+void perror()
+{
+  char buffer[256];
 
-int fork();
-
-int write (int fd, char * buffer, int size);
-void perror(){
-
-char buffer[256];
   itoa(errno, buffer);
+
   write(1, buffer, strlen(buffer));
 }

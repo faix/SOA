@@ -1,5 +1,5 @@
-#ifndef _ERRNO_H
-#define _ERRNO_H
+#ifndef __ZEOS_ERRNO_H__
+#define __ZEOS_ERRNO_H__
 
 #define EPERM        1  /* Operation not permitted */
 #define ENOENT       2  /* No such file or directory */
@@ -35,6 +35,7 @@
 #define EPIPE       32  /* Broken pipe */
 #define EDOM        33  /* Math argument out of domain of func */
 #define ERANGE      34  /* Math result not representable */
+
 #define EDEADLK     35  /* Resource deadlock would occur */
 #define ENAMETOOLONG    36  /* File name too long */
 #define ENOLCK      37  /* No record locks available */
@@ -133,10 +134,6 @@
 #define EKEYEXPIRED 127 /* Key has expired */
 #define EKEYREVOKED 128 /* Key has been revoked */
 #define EKEYREJECTED    129 /* Key was rejected by service */
-
-/* for robust mutexes */
-#define EOWNERDEAD  130 /* Owner died */
-#define ENOTRECOVERABLE 131 /* State not recoverable */
 
 #endif
 

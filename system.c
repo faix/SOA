@@ -11,6 +11,7 @@
 #include <mm.h>
 #include <io.h>
 #include <utils.h>
+//#include <zeos_mm.h> /* TO BE DELETED WHEN ADDED THE PROCESS MANAGEMENT CODE TO BECOME MULTIPROCESS */
 
 
 int (*usr_main)(void) = (void *) PH_USER_START;
@@ -56,17 +57,6 @@ inline void set_seg_regs(Word data_sel, Word stack_sel, DWord esp)
 /*
  *   Main entry point to ZEOS Operating System
  */
-
-int zeos_ticks;
-
-int get_zeos_ticks(void){
-  return zeos_ticks;
-}
-
-void increase_zeos_ticks(void){
-  zeos_ticks++;
-}
-
 int __attribute__((__section__(".text.main")))
   main(void)
 {
@@ -95,6 +85,8 @@ int __attribute__((__section__(".text.main")))
 
 /* Initialize an address space to be used for the monoprocess version of ZeOS */
 
+  //monoprocess_init_addr_space(); /* TO BE DELETED WHEN ADDED THE PROCESS MANAGEMENT CODE TO BECOME MULTIPROCESS */
+  zeos_console_init();
   /* Initialize Scheduling */
   init_sched();
 
@@ -106,11 +98,10 @@ int __attribute__((__section__(".text.main")))
   /* Move user code/data now (after the page table initialization) */
   copy_data((void *) KERNEL_START + *p_sys_size, usr_main, *p_usr_size);
 
-
+  
   printk("Entering user mode...");
 
   enable_int();
-  zeos_ticks = 0; //inicializamos la variable despues de la inicializacion de interrupciones
   /*
    * We return from a 'theorical' call to a 'call gate' to reduce our privileges
    * and going to execute 'magically' at 'usr_main'...

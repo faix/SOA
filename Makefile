@@ -26,12 +26,12 @@ SYSLDFLAGS = -T system.lds
 USRLDFLAGS = -T user.lds
 LINKFLAGS = -g
 
-SYSOBJ = interrupt.o entry.o sys_call_table.o io.o sched.o sys.o mm.o devices.o utils.o hardware.o list.o suma.o task_switch.o aux_inner_task_switch.o
+SYSOBJ = interrupt.o entry.o sys_call_table.o io.o sched.o sys.o mm.o devices.o utils.o hardware.o list.o p_stats.o kernel-utils.o
 
-LIBZEOS = -L . -l zeos
+LIBZEOS = -L . -l zeos -l auxjp -l schedperf
 
 #add to USROBJ the object files required to complete the user program
-USROBJ = libc.o suma.o wrapper.o# libjp.a
+USROBJ = libc.o user-utils.o libuser.a # libjp.a
 
 all:zeos.bin
 
@@ -55,18 +55,13 @@ bootsect.s: bootsect.S Makefile
 entry.s: entry.S $(INCLUDEDIR)/asm.h $(INCLUDEDIR)/segment.h
 	$(CPP) $(ASMFLAGS) -o $@ $<
 
-suma.s: suma.S $(INCLUDEDIR)/asm.h
+user-utils.s: user-utils.S $(INCLUDEDIR)/asm.h
+	$(CPP) $(ASMFLAGS) -o $@ $<
+
+kernel-utils.s: kernel-utils.S $(INCLUDEDIR)/asm.h
 	$(CPP) $(ASMFLAGS) -o $@ $<
 
 sys_call_table.s: sys_call_table.S $(INCLUDEDIR)/asm.h $(INCLUDEDIR)/segment.h
-	$(CPP) $(ASMFLAGS) -o $@ $<
-wrapper.s: wrapper.S $(INCLUDEDIR)/asm.h $(INCLUDEDIR)/errno.h
-	$(CPP) $(ASMFLAGS) -o $@ $<
-
-task_switch.s: task_switch.S $(INCLUDEDIR)/asm.h
-	$(CPP) $(ASMFLAGS) -o $@ $<
-
-aux_inner_task_switch.s: aux_inner_task_switch.S $(INCLUDEDIR)/asm.h
 	$(CPP) $(ASMFLAGS) -o $@ $<
 
 user.o:user.c $(INCLUDEDIR)/libc.h
@@ -85,6 +80,7 @@ sys.o:sys.c $(INCLUDEDIR)/devices.h
 
 utils.o:utils.c $(INCLUDEDIR)/utils.h
 
+p_stats.o:p_stats.c $(INCLUDEDIR)/utils.h
 
 system.o:system.c $(INCLUDEDIR)/hardware.h system.lds $(SYSOBJ) $(INCLUDEDIR)/segment.h $(INCLUDEDIR)/types.h $(INCLUDEDIR)/interrupt.h $(INCLUDEDIR)/system.h $(INCLUDEDIR)/sched.h $(INCLUDEDIR)/mm.h $(INCLUDEDIR)/io.h $(INCLUDEDIR)/mm_address.h 
 
@@ -94,6 +90,7 @@ system: system.o system.lds $(SYSOBJ)
 
 user: user.o user.lds $(USROBJ) 
 	$(LD) $(LINKFLAGS) $(USRLDFLAGS) -o $@ $< $(USROBJ)
+
 
 clean:
 	rm -f *.o *.s bochsout.txt parport.out system.out system bootsect zeos.bin user user.out *~ build 
