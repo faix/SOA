@@ -1,0 +1,35 @@
+50 clients
+max concurrent clients,iterations,time
+50,50,3093
+50,100,3219
+50,150,7117
+10 clients
+max concurrent clients,iterations,time
+10,50,134
+10,100,204
+10,150,318
+10,200,311
+10,250,317
+10,300,286
+10,350,578
+10,400,552
+25 clients
+max concurrent clients,iterations,time
+25,50,1078
+25,100,1122
+25,150,1162
+25,200,1129
+25,250,1398
+25,300,1382
+25,350,1653
+25,400,1529
+50 clients
+max concurrent clients,iterations,time
+49,50,3072
+50,100,3393
+50,150,3265
+50,200,3686
+50,250,7217
+50,300,3697
+50,350,7453
+50,400,7363

@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-
+#include <pthread.h>
 
 doService(int fd) {
 int i = 0;
@@ -31,6 +31,12 @@ int socket_fd = (int) fd;
 
 }
 
+doServiceFork(int fd){
+	pthread_t thread;
+	int t = pthread_create(&thread, NULL, doService, (void *) fd);
+	if (t != 0) perror("Couldn't instantiate thread");
+
+}
 
 main (int argc, char *argv[])
 {
@@ -65,7 +71,7 @@ main (int argc, char *argv[])
 		  exit (1);
 	  }
 
-	  doService(connectionFD);
+	  doServiceFork(connectionFD);
   }
 
 }

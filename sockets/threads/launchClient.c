@@ -4,6 +4,7 @@
 #include <string.h>
 #include <fcntl.h>
 #include <signal.h>
+#include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <sys/time.h>
@@ -35,7 +36,11 @@ if (argc != 5) {
 signal(SIGCHLD,trat_sigchld);
 nclients = atoi(argv[1]);
 
-fd = open("launch_info", O_CREAT|O_TRUNC|O_WRONLY, 0600);
+mkdir("test", ACCESSPERMS);
+sprintf(buf, "test/Client_%s_Messages_%s", argv[1], argv[2]);
+mkdir(buf, ACCESSPERMS);
+sprintf(buf, "test/Client_%s_Messages_%s/launch_info", argv[1], argv[2]);
+fd = open(buf, O_CREAT|O_TRUNC|O_WRONLY, 0600);
 for (i=0; i<nclients;i++){
 	pidh =fork();
 	switch (pidh){
@@ -43,7 +48,7 @@ for (i=0; i<nclients;i++){
 	case -1: perror("Error creating client process");
 		 exit(1);
 	case 0:  
-		 sprintf(buf, "client_%d", i);
+		 sprintf(buf, "test/Client_%s_Messages_%s/client_%d",argv[1], argv[2], i);
 		 fd = open (buf, O_CREAT|O_TRUNC|O_WRONLY, 0600); 
 		 if (fd < 0) {
 			perror("Opening client results file");

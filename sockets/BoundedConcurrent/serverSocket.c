@@ -2,6 +2,8 @@
 #include <string.h>
 #include <stdio.h>
 
+const int MAX_CONCURRENCY = 10;
+int concurrency = 0;
 
 doService(int fd) {
 int i = 0;
@@ -31,6 +33,20 @@ int socket_fd = (int) fd;
 
 }
 
+doServiceFork(int fd){
+	if(concurrency >= MAX_CONCURRENCY){
+		int wstatus;
+		waitpid(-1, &wstatus, 0);
+		concurrency--;
+	}
+	int pid = fork();
+	if(pid == 0){
+		doService(fd);
+		exit(0);
+	}
+	else if (pid > 0) concurrency++;
+	else if (pid < 0) perror("Couldn't fork");
+}
 
 main (int argc, char *argv[])
 {
@@ -65,7 +81,7 @@ main (int argc, char *argv[])
 		  exit (1);
 	  }
 
-	  doService(connectionFD);
+	  doServiceFork(connectionFD);
   }
 
 }

@@ -1,0 +1,30 @@
+Sequential Server
+As we can observe from the sequential server diagram, for the cases of 10 and 
+25 clients the evolution is pretty linear. However, the difference in the
+initial execution time with only 50 iterations is 8 times higher while the
+number of clients is only multiplied by 2.5. This increase is even more 
+exaggerated when dealing with 50 clientes, multiplying the amount of clients
+by 5 results in an increase of more than 20 times in the execution time.
+
+Unbounded Concurrent Server
+We can initially observe that the execution time with 10 clients has worsened
+with respect to the sequential server version. However the starting times for
+both 25 and 50 clients have been greatly improved specially that of 50 clients. 
+The evolution of 25 clients has been worsened however as after 200 iterations 
+the execution is doubled and continues to increase after that.
+
+Bounded Concurrent Server
+Overall we see a great improvement in all execution times. There is around a
+50% decrease in the execution time of 10 clients and more than that in the 
+execution of 25 clients. In comparison with the unbounded server we can see that
+the 50 clients is way more linear, and even after the peak at 350 iterations 
+the execution time comes back down to pretty low level.
+
+Threads Unbounded Concurrent Server
+By far this version is the one that has yielded the best results. Using threads
+really is much less costly than creating new processes by forking. The trends
+of the executions seem to evolve in the same way as the Unbounded Server, which
+makes sense as the code is the same. Only the general cost is much lower overall.
+If threads were applied to the Bounded Concurrent Server we might see even better
+results.  
+   

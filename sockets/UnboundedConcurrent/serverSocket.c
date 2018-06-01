@@ -2,7 +2,6 @@
 #include <string.h>
 #include <stdio.h>
 
-
 doService(int fd) {
 int i = 0;
 char buff[80];
@@ -31,6 +30,14 @@ int socket_fd = (int) fd;
 
 }
 
+doServiceFork(int fd){
+	int pid = fork();
+	if(pid == 0){
+		doService(fd);
+		exit(0);
+	}
+	else if (pid < 0) perror("Couldn't fork");
+}
 
 main (int argc, char *argv[])
 {
@@ -65,7 +72,7 @@ main (int argc, char *argv[])
 		  exit (1);
 	  }
 
-	  doService(connectionFD);
+	  doServiceFork(connectionFD);
   }
 
 }
