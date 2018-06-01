@@ -31,14 +31,15 @@ void cpu_burst(){ // Workload 1
         	pid = fork();
 		if(pid == 0) fork();
 	}
+	aux = 0;
 	for(int i = 0; i < 5000; i++){
-                        for(int j = 0; j < 5000; j++){
-                                if(i*j == 4000000) write(1, "\nWorkload", 10);
-                        }
+        	for(int j = 0; j < 5000; j++){
+                	if(i*j == 40000000) aux++;
                 }
+        }
+	itoa(aux ,buff);
+	write(1,buff, strlen(buff));
 	print_results(getpid());
-
-
 }
 
 void ioburst() //workload 2
@@ -59,12 +60,14 @@ void mixed(){ //workload 3
                 pid = fork();
                 if(pid == 0) fork();
         }
+	aux = 0;
 	for(int i = 0; i < 5000; i++){
                         for(int j = 0; j < 5000; j++){
-                                if(i*j == 400000000) write(1, "\nWorkload", 10);
+                                if(i*j == 40000000) aux++;
                         }
         }
-
+	itoa(aux, buff);
+	write(1, buff, strlen(buff));
         read(0,0, 2000);
         print_results(getpid());
 }
@@ -75,9 +78,9 @@ int __attribute__ ((__section__(".text.main")))
     /* Next line, tries to move value 0 to CR3 register. This register is a privileged one, and so it will raise an exception */
      /* __asm__ __volatile__ ("mov %0, %%cr3"::"r" (0) ); */
   set_sched_policy(1);
-  cpu_burst();
-  if(getpid() == 1)print_results(0);
-
+  mixed();
+  print_results(0);
+  exit();
   //read(0,0,500000);
 
 /*struct stats st;

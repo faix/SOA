@@ -222,9 +222,9 @@ void init_freequeue()
 
 void init_sched()
 {
+  init_sched_policy();
   init_freequeue();
   INIT_LIST_HEAD(&readyqueue);
-  init_sched_policy();
 }
 
 struct stats * get_task_stats(struct task_struct *t){

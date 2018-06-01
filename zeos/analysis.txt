@@ -1,0 +1,26 @@
+Workload 1 --> CPU Burst
+
+All of the processes have pretty much the same result when using a round robin policy for scheduling.
+
+In the case of the FCFS scheduling we notice that the parent has less ticks than its children which both children have the same number of ticks.
+
+In conclusion, we think that FCFS has a better policy for this type of workload as the processes spend less time in the ready state.
+
+
+Workload 2 --> IO Burst
+
+With both scheduling policies, the processes spend the same amount of ticks executing. However, with the round robin scheduling policy the time is spent with the system,
+while in the FCFS scheduling policy the time is spent in blocked.
+
+As it could be expected, when the processes are not in execution the idle process is the one that ends up being in execution. 
+As such we see that the idle process in the case slightly bigger than the biggest process.
+
+
+Workload 3 --> Mixed
+
+In RR all proces spend the same time in ready and user, the only thing that varies is the amount of time spent in system.
+
+In FCFS spend the same time in user and change the time spent in system and blocked.
+
+In both cases idle occupies  the cpu when the other processes are blocked.
+
